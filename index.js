@@ -242,16 +242,24 @@ class StaggEKGProWifiAccessory {
     }
 
     getOnBaseHandler (callback) {
+        // Return last-known value immediately; avoid slow HTTP on HomeKit poll.
+        callback(null, this._lastLifted ? 1 : 0)
+        // Background refresh if cache is stale
         this._readState(false, (error, details) => {
-            if (error) return callback(error)
-            callback(null, details.lifted ? 1 : 0)
+            if (!error) {
+                this.onBaseService.updateCharacteristic(Characteristic.ContactSensorState, details.lifted ? 1 : 0)
+            }
         })
     }
 
     getNoWaterHandler (callback) {
+        // Return last-known value immediately; avoid slow HTTP on HomeKit poll.
+        callback(null, this._lastNoWater ? 1 : 0)
+        // Background refresh if cache is stale
         this._readState(false, (error, details) => {
-            if (error) return callback(error)
-            callback(null, details.noWater ? 1 : 0)
+            if (!error) {
+                this.noWaterService.updateCharacteristic(Characteristic.ContactSensorState, details.noWater ? 1 : 0)
+            }
         })
     }
 
